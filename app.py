@@ -3,13 +3,30 @@
 
 from flask import Flask, make_response, render_template
 from flask_bootstrap import Bootstrap
+from flask_moment import Moment
+from datetime import datetime
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import Required
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'stephencurry30'
 bootstrap = Bootstrap(app)
+moment = Moment(app)
 
 
-@app.route('/')
+class NameForm(FlaskForm):
+    name = StringField('你的名字？', validators=[Required])
+    submit = SubmitField('提交')
+
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    response = make_response(render_template('index.html'))
+    name = None
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
+    response = make_response(render_template('index.html', current_time=datetime.utcnow(), form=form, name=name))
     return response
 
 
@@ -18,9 +35,11 @@ def user(name):
     response = make_response(render_template('user.html', name=name))
     return response
 
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
+
 
 @app.errorhandler(500)
 def internal_server_error(e):
