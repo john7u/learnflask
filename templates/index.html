@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Hello</h1>
+    <h1>你好,{% if name %}{{ name }}{% else %}陌生人{% endif %}</h1>
+    <p>现在时间是{{ moment(current_time).format('LLL') }}</p>
+    <p>刷新在 {{ moment(current_time).fromNow(refresh=True) }}</p>
+    <p>{{ moment().calendar() }}</p>
 </div>
+{{ wtf.quick_form(form) }}
 {% endblock %}

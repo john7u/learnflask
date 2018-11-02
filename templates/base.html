@@ -2,7 +2,7 @@
 <html lang="en">
 {% extends "bootstrap/base.html" %}
 
-{% block title %}Flasky {{ name }}{% endblock %}
+{% block title %}Flasky{% endblock %}
 
 {% block head %}
 {{ super() }}
@@ -11,6 +11,12 @@
 <link rel="icon" href="{{ url_for('static', filename='favicon.ico')}}"
       type="image/x-icon">
 {% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{{ moment.lang('zh-CN') }}
+{% endblock %}}
 
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation">
@@ -28,8 +34,6 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
                 <li><a href="/">Home</a></li>
-                <li><a href="/user/qx">QX</a></li>
-                <li><a href="/user/liuchang">LIUCHANG</a></li>
             </ul>
         </div>
     </div>
