@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from flask import Flask, make_response, render_template, session, redirect, url_for, flash
+from flask import Flask, make_response, render_template, session, url_for, redirect, flash
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
 from datetime import datetime
@@ -25,12 +25,14 @@ class NameForm(FlaskForm):
 def index():
     form = NameForm()
     if form.validate_on_submit():
-        if form.name.data != form.name_v.data:
-            flash('两次输入的结果不一样，请重新输入')
-        session['name'] = form.name.data
+        if form.name.data == form.name_v.data:
+            flash(u'欢迎回来,{}'.format(form.name.data), 'success')
+            session['name'] = form.name.data
+        else:
+            flash(u'输入的名字不一致', 'danger')
+            session['name'] = '陌生人'
         return redirect(url_for('index'))
-    return render_template('index.html', current_time=datetime.utcnow(), form=form,
-                           name=session.get('name'))
+    return render_template('index.html', current_time=datetime.utcnow(), form=form, name=session.get('name'))
 
 
 @app.route('/user/<name>')
