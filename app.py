@@ -8,11 +8,19 @@ from datetime import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
+from flask_sqlalchemy import SQLAlchemy
+import pymysql
+import os
+basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['CSRF_ENABLED'] = True
 app.config['SECRET_KEY'] = 'stephencurry30'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://' + 'root:abuseyoudna@127.0.0.1/' \
+                                        + os.path.join(basedir, 'db.learnflask')
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 bootstrap = Bootstrap(app)
 moment = Moment(app)
+db = SQLAlchemy(app)
 
 
 class NameForm(FlaskForm):
@@ -49,6 +57,9 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'), 500
+
+
+
 
 
 if __name__ == '__main__':
