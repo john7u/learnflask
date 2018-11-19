@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.config['CSRF_ENABLED'] = True
 app.config['SECRET_KEY'] = 'stephencurry30'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://' + 'root:abuseyoudna@127.0.0.1/' \
-                                        + os.path.join(basedir, 'db.learnflask')
+                                        + os.path.join(basedir, 'data.learnflask')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 bootstrap = Bootstrap(app)
 moment = Moment(app)
@@ -59,7 +59,24 @@ def internal_server_error(e):
     return render_template('500.html'), 500
 
 
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    users = db.relationship('User', backref='role')
 
+    def __repr__(self):
+        return '<Role %r>' % self.name
+
+
+class User(db.model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+
+    def __repr__(self):
+        return '<User %r>' % self.username  # print类实例将打印用户名
 
 
 if __name__ == '__main__':
