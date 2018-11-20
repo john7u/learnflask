@@ -16,7 +16,7 @@ app = Flask(__name__)
 app.config['CSRF_ENABLED'] = True
 app.config['SECRET_KEY'] = 'stephencurry30'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:abuseyoudna87@127.0.0.1:3306/learnflask?charset=utf8mb4'
-app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True      # 该配置为True,则每次请求结束都会自动commit数据库的变动
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True     # 如果设置成 True (默认情况)，Flask-SQLAlchemy 将会追踪对象的修改
 # 并且发送信号。这需要额外的内存， 如果不必要的可以禁用它。
 bootstrap = Bootstrap(app)
