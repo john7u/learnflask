@@ -15,9 +15,10 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['CSRF_ENABLED'] = True
 app.config['SECRET_KEY'] = 'stephencurry30'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://' + 'root:abuseyoudna@127.0.0.1/' \
-                                        + os.path.join(basedir, 'data.learnflask')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:abuseyoudna87@127.0.0.1:3306/learnflask?charset=utf8mb4'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True     # 如果设置成 True (默认情况)，Flask-SQLAlchemy 将会追踪对象的修改
+# 并且发送信号。这需要额外的内存， 如果不必要的可以禁用它。
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
@@ -63,13 +64,13 @@ class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
-    users = db.relationship('User', backref='role')
+    users = db.relationship('User', backref='role')  # backref向User模型中添加一个role属性
 
     def __repr__(self):
         return '<Role %r>' % self.name
 
 
-class User(db.model):
+class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
