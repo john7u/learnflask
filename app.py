@@ -34,14 +34,24 @@ class NameForm(FlaskForm):
 def index():
     form = NameForm()
     if form.validate_on_submit():
+        user = User.query.filter_by(username=form.name.data).first()
         if form.name.data == form.name_v.data:
+            if user is None:
+                user = User(username=form.name.data)
+                db.session.add(user)
+                session['known'] = False
+            else:
+                session['known'] = True
             flash(u'欢迎回来,{}'.format(form.name.data), 'success')
             session['name'] = form.name.data
         else:
             flash(u'输入的名字不一致', 'danger')
             session['name'] = '陌生人'
+        form.name.data = ''
+        form.name_v.data = ''
         return redirect(url_for('index'))
-    return render_template('index.html', current_time=datetime.utcnow(), form=form, name=session.get('name'))
+    return render_template('index.html', current_time=datetime.utcnow(), form=form, name=session.get('name'),
+                           known=session.get('known', False))
 
 
 @app.route('/user/<name>')
