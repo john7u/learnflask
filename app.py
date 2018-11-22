@@ -11,6 +11,7 @@ from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
 import pymysql
 import os
+from flask_script import Shell, Manager
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['CSRF_ENABLED'] = True
@@ -22,6 +23,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True     # 如果设置成 True (
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
+manager = Manager(app)
 
 
 class NameForm(FlaskForm):
@@ -34,8 +36,8 @@ class NameForm(FlaskForm):
 def index():
     form = NameForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
         if form.name.data == form.name_v.data:
+            user = User.query.filter_by(username=form.name.data).first()
             if user is None:
                 user = User(username=form.name.data)
                 db.session.add(user)
@@ -90,5 +92,13 @@ class User(db.Model):
         return '<User %r>' % self.username  # print类实例将打印用户名
 
 
+def make_shell_context():
+    return dict(app=app, db=db, User=User, Role=Role)
+
+
+manager.add_command('shell', Shell(make_context=make_shell_context))
+
+
 if __name__ == '__main__':
+    # manager.run()
     app.run(debug=True)
