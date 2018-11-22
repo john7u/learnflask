@@ -12,6 +12,7 @@ from flask_sqlalchemy import SQLAlchemy
 import pymysql
 import os
 from flask_script import Shell, Manager
+from flask_migrate import Migrate, MigrateCommand
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['CSRF_ENABLED'] = True
@@ -24,6 +25,7 @@ bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 manager = Manager(app)
+migrate = Migrate(app, db)
 
 
 class NameForm(FlaskForm):
@@ -97,8 +99,9 @@ def make_shell_context():
 
 
 manager.add_command('shell', Shell(make_context=make_shell_context))
+manager.add_command('db', MigrateCommand)
 
 
 if __name__ == '__main__':
-    # manager.run()
-    app.run(debug=True)
+    manager.run()
+    # app.run(debug=True)
