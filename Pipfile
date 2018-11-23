@@ -12,6 +12,7 @@ flask-wtf = "*"
 flask-sqlalchemy = "*"
 pymysql = "*"
 flask-migrate = "*"
+flask-mail = "*"
 
 [dev-packages]
 
