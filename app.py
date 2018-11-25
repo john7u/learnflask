@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-
 from flask import Flask, make_response, render_template, session, url_for, redirect, flash
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
@@ -13,6 +12,8 @@ import pymysql
 import os
 from flask_script import Shell, Manager
 from flask_migrate import Migrate, MigrateCommand
+from flask_mail import Mail, Message
+from threading import Thread
 basedir = os.path.abspath(os.path.dirname(__file__))
 app = Flask(__name__)
 app.config['CSRF_ENABLED'] = True
@@ -21,11 +22,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:abuseyoudna87@127.
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True      # 该配置为True,则每次请求结束都会自动commit数据库的变动
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True     # 如果设置成 True (默认情况)，Flask-SQLAlchemy 将会追踪对象的修改
 # 并且发送信号。这需要额外的内存， 如果不必要的可以禁用它。
+app.config['MAIL_SERVER'] = 'smtp.126.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['FLASKY_ADMIN'] = os.environ.get('FLASKY_ADMIN')
+app.config['FLASKY_MAIL_SUBJECT_PREFIX'] = '[FLASKY]'
+app.config['FLASKY_MAIL_SENDER'] = 'Flasky Admin'
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 db = SQLAlchemy(app)
 manager = Manager(app)
 migrate = Migrate(app, db)
+mail = Mail(app)
 
 
 class NameForm(FlaskForm):
@@ -44,6 +55,8 @@ def index():
                 user = User(username=form.name.data)
                 db.session.add(user)
                 session['known'] = False
+#                if app.config['FLASKY_ADMIN']:
+#                   send_email(app.config['FLASKY_ADMIN'], 'You have a New User', 'mail/new_user', user=user)
             else:
                 session['known'] = True
             flash(u'欢迎回来,{}'.format(form.name.data), 'success')
@@ -92,6 +105,25 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username  # print类实例将打印用户名
+
+
+class EmailHandler(Thread):
+    def __init__(self, a, msg):
+        super(EmailHandler, self).__init__()
+        self.app = a
+        self.msg = msg
+
+    def send_sync_email(self):
+        with self.app.app_context:
+            mail.send(self.msg)
+
+
+def send_email(to, subject, template, **kwargs):
+    msg = Message(app.config['FLASKY_MAIL_SUBJECT_PREFIX'] + subject,
+                  sender=app.config['FLASKY_MAIL_SENDER'], recipients=[to])
+    msg.body = render_template(template + '.txt', **kwargs)
+    msg.html = render_template(template + '.html', **kwargs)
+    EmailHandler(app, msg).start()
 
 
 def make_shell_context():
