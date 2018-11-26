@@ -21,8 +21,8 @@ def index():
                 user = User(username=form.name.data)
                 db.session.add(user)
                 session['known'] = False
-                if os.environ.get('FLASK_ADMIN'):
-                    send_email(os.environ.get('FLASK_ADMIN'), 'You have a New User', 'mail/new_user', user=user)
+                if os.environ.get('FLASKY_ADMIN'):
+                    send_email(os.environ.get('FLASKY_ADMIN'), 'You have a New User', 'mail/new_user', user=user)
             else:
                 session['known'] = True
             flash(u'欢迎回来,{}'.format(form.name.data), 'success')
